@@ -25,7 +25,7 @@ function setup() {
 function draw() {
   background("black");
 
-  if(nivelTerminado){
+  if (nivelTerminado) {
     nivelJuego();
   }
 
@@ -36,6 +36,18 @@ function draw() {
   for (let i = listaEnemigos.length - 1; i >= 0; i--) {
     image(listaEnemigos[i].imagen, listaEnemigos[i].x, listaEnemigos[i].y, listaEnemigos[i].ancho, listaEnemigos[i].alto);
     listaEnemigos[i].y += 0.5;
+
+    //VALIDAR COLISION MISIL JUGADOR CON NAVE ENEMIGA
+    for (let k = listaMisiles.length - 1; k >= 0; k--) {
+      if (listaMisiles[k].x < listaEnemigos[i].x + listaEnemigos[i].ancho &&
+        listaMisiles[k].x + listaMisiles[k].ancho > listaEnemigos[i].x &&
+        listaMisiles[k].y < listaEnemigos[i].y + listaEnemigos[i].alto &&
+        listaMisiles[k].y + listaMisiles[k].alto > listaEnemigos[i].y) {
+          listaEnemigos.splice(i, 1);
+          listaMisiles.splice(k, 1);
+          break;
+      }
+    }
   }
 
   //DIBUJAR MISILES
@@ -53,6 +65,7 @@ function draw() {
   if (keyIsDown(RIGHT_ARROW) && (jugador.x + jugador.ancho) < windowWidth) {
     jugador.x += 9;
   }
+
 }
 
 //LANZAR MISILES CON LA TECLA ESPACIO
