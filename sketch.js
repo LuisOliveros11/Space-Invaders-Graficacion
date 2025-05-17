@@ -32,20 +32,19 @@ function draw() {
   //DIBUJAR JUGADOR
   image(jugador.imagen, jugador.x, jugador.y, jugador.ancho, jugador.alto);
 
-  //DIBUJAR ENEMIGOS
-  for (let i = listaEnemigos.length - 1; i >= 0; i--) {
-    image(listaEnemigos[i].imagen, listaEnemigos[i].x, listaEnemigos[i].y, listaEnemigos[i].ancho, listaEnemigos[i].alto);
-    listaEnemigos[i].y += 0.5;
+  //MOVIMIENTO DE LOS ENEMIGOS
+  movimientoEnemigos()
 
-    //VALIDAR COLISION MISIL JUGADOR CON NAVE ENEMIGA
+  //VALIDAR COLISION MISIL JUGADOR CON NAVE ENEMIGA
+  for (let i = listaEnemigos.length - 1; i >= 0; i--) {
     for (let k = listaMisiles.length - 1; k >= 0; k--) {
       if (listaMisiles[k].x < listaEnemigos[i].x + listaEnemigos[i].ancho &&
         listaMisiles[k].x + listaMisiles[k].ancho > listaEnemigos[i].x &&
         listaMisiles[k].y < listaEnemigos[i].y + listaEnemigos[i].alto &&
         listaMisiles[k].y + listaMisiles[k].alto > listaEnemigos[i].y) {
-          listaEnemigos.splice(i, 1);
-          listaMisiles.splice(k, 1);
-          break;
+        listaEnemigos.splice(i, 1);
+        listaMisiles.splice(k, 1);
+        break;
       }
     }
   }
@@ -105,12 +104,26 @@ function nivelJuego() {
             alto: 80,
             ancho: 70,
             x: j,
-            y: i
+            y: i,
+            direccionX: 1
           };
           listaEnemigos.push(enemigo);
         }
       }
       nivelTerminado = false;
       break;
+  }
+}
+
+function movimientoEnemigos() {
+  for (let i = listaEnemigos.length - 1; i >= 0; i--) {
+    image(listaEnemigos[i].imagen, listaEnemigos[i].x, listaEnemigos[i].y, listaEnemigos[i].ancho, listaEnemigos[i].alto);
+    listaEnemigos[i].x += listaEnemigos[i].direccionX * 2.5;
+    if(listaEnemigos[i].x + listaEnemigos[i].ancho >= windowWidth || listaEnemigos[i].x <= 0){
+      for (let k = listaEnemigos.length - 1; k >= 0; k--) {
+        listaEnemigos[k].direccionX = -listaEnemigos[k].direccionX;
+        listaEnemigos[k].y += 10;
+      }
+    }
   }
 }
