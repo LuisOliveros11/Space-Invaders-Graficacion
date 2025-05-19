@@ -5,7 +5,9 @@ let jugador = {
   alto: 100,
   ancho: 70,
   x: 0,
-  y: 0
+  y: 0,
+  puntuacion: 0,
+  vidas: 3
 };
 let listaMisiles = [];
 let listaEnemigos = [];
@@ -24,6 +26,13 @@ function setup() {
 
 function draw() {
   background("black");
+
+  fill("white")
+  textSize(15);
+  textAlign(LEFT, BASELINE);
+  text('Nivel: ' + nivel, 100, 30);
+  text('Puntuación: ' + jugador.puntuacion, 200, 30);
+  text('Vidas restantes: ' + jugador.vidas, 350, 30);
 
   if (nivelTerminado) {
     nivelJuego();
@@ -44,6 +53,7 @@ function draw() {
         listaMisiles[k].y + listaMisiles[k].alto > listaEnemigos[i].y) {
         listaEnemigos.splice(i, 1);
         listaMisiles.splice(k, 1);
+        jugador.puntuacion++;
         break;
       }
     }
@@ -96,7 +106,7 @@ function eliminarMisil() {
 function nivelJuego() {
   switch (nivel) {
     case 1:
-      for (let i = 50; i <= 300; i += 100) {
+      for (let i = 80; i <= 330; i += 100) {
         for (let j = 700; j <= 1090; j += 130) {
           let enemigo = {
             imagen: loadImage('./img/nave_Enemiga.png'),
