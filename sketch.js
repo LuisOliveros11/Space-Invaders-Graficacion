@@ -62,6 +62,20 @@ function draw() {
     }
   }
 
+    //VALIDAR COLISION MISIL ENEMIGO CON JUGADOR
+  for (let i = listaEnemigos.length - 1; i >= 0; i--) {
+    for (let k = listaMisilesEnemigos.length - 1; k >= 0; k--) {
+      if (listaMisilesEnemigos[k].x < jugador.x + jugador.ancho &&
+        listaMisilesEnemigos[k].x + listaMisilesEnemigos[k].ancho > jugador.x &&
+        listaMisilesEnemigos[k].y < jugador.y + jugador.alto + 30 &&
+        listaMisilesEnemigos[k].y + jugador.alto > jugador.y + 30) { 
+          listaMisilesEnemigos.splice(k, 1);
+          jugador.vidas--;
+          break;
+      }
+    }
+  }
+
   //DIBUJAR MISILES
   eliminarMisil();
   eliminarMisilEnemigo();
