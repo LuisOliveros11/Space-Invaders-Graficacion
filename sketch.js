@@ -10,6 +10,9 @@ let jugador = {
   vidas: 3
 };
 let listaMisiles = [];
+let listaMisilesEnemigos = [];
+let tiempoMisilEnemigo = 3000 //indica el intervalo de tiempo que tardan los enemigos en lanzar un disparo, puede disminuir dependiendo del nivel
+
 let listaEnemigos = [];
 let nivel = 1;
 let nivelTerminado = true;
@@ -61,10 +64,18 @@ function draw() {
 
   //DIBUJAR MISILES
   eliminarMisil();
+  eliminarMisilEnemigo();
+
+  //MOVIMIENTO DE MISILES
   for (let i = listaMisiles.length - 1; i >= 0; i--) {
     fill(listaMisiles[i].colorFondo)
     rect(listaMisiles[i].x, listaMisiles[i].y, listaMisiles[i].ancho, listaMisiles[i].alto);
     listaMisiles[i].y -= 5;
+  }
+    for (let i = listaMisilesEnemigos.length - 1; i >= 0; i--) {
+    fill(listaMisilesEnemigos[i].colorFondo)
+    rect(listaMisilesEnemigos[i].x, listaMisilesEnemigos[i].y, listaMisilesEnemigos[i].ancho, listaMisilesEnemigos[i].alto);
+    listaMisilesEnemigos[i].y += 5;
   }
 
   //CONTROLA MOVIMIENTO DEL JUGADOR 
@@ -94,11 +105,37 @@ function crearMisil() {
   };
   listaMisiles.push(misil);
 }
+function crearMisilEnemigo() {
+  if(listaEnemigos.length == 0){
+    return;
+  }
+
+  let i = numeroRandom(0, listaEnemigos.length)
+
+  let misil = {
+    alto: 60,
+    ancho: 5,
+    colorFondo: "red",
+    x: listaEnemigos[i].x + 33,
+    y: listaEnemigos[i].y + 100
+  };
+  listaMisilesEnemigos.push(misil);
+}
+
+//Ejecutar la función cada cierto tiempo
+setInterval(crearMisilEnemigo, tiempoMisilEnemigo)
 
 function eliminarMisil() {
   for (let i = listaMisiles.length - 1; i >= 0; i--) {
     if (listaMisiles[i].y < -60) {
       listaMisiles.splice(i, 1);
+    }
+  }
+}
+function eliminarMisilEnemigo() {
+  for (let i = listaMisilesEnemigos.length - 1; i >= 0; i--) {
+    if (listaMisilesEnemigos[i].y > windowHeight) {
+      listaMisilesEnemigos.splice(i, 1);
     }
   }
 }
@@ -136,4 +173,12 @@ function movimientoEnemigos() {
       }
     }
   }
+}
+
+
+
+function numeroRandom(min, max) {
+  const numeroMinimo = Math.ceil(min);
+  const numeroMaximo = Math.floor(max);
+  return Math.floor(Math.random() * (numeroMaximo - numeroMinimo) + numeroMinimo); 
 }
