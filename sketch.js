@@ -1,7 +1,6 @@
 let jugador = {
   imagen: null,
   puntuacion: 0,
-  vidas: 3,
   alto: 100,
   ancho: 70,
   x: 0,
@@ -11,11 +10,13 @@ let jugador = {
 };
 let listaMisiles = [];
 let listaMisilesEnemigos = [];
-let tiempoMisilEnemigo = 3000 //indica el intervalo de tiempo que tardan los enemigos en lanzar un disparo, puede disminuir dependiendo del nivel
+let tiempoMisilEnemigo = 3000 
 
 let listaEnemigos = [];
 let nivel = 1;
 let nivelTerminado = true;
+
+let juegoTerminado = false;
 
 function preload() {
   jugador.imagen = loadImage('./img/nave.png');
@@ -36,6 +37,20 @@ function draw() {
   text('Nivel: ' + nivel, 100, 30);
   text('Puntuación: ' + jugador.puntuacion, 200, 30);
   text('Vidas restantes: ' + jugador.vidas, 350, 30);
+
+   if (jugador.vidas <= 0) {
+    textSize(32);
+    fill("white");
+    background("black"); 
+    textAlign(CENTER, CENTER);
+    text("¡Juego finalizado!", windowWidth/2, windowHeight/2 - 100);
+    textSize(22);
+    text("Presiona Enter para volver a jugar", windowWidth/2, windowHeight/2);
+    noLoop();
+    juegoTerminado = true;
+    return;
+
+  }
 
   if (nivelTerminado) {
     nivelJuego();
@@ -106,6 +121,9 @@ function draw() {
 function keyPressed() {
   if (keyCode === 32) {
     crearMisil();
+  }
+  if (juegoTerminado && keyCode === ENTER) {
+    reiniciarJuego();
   }
 }
 
@@ -189,7 +207,23 @@ function movimientoEnemigos() {
   }
 }
 
+function reiniciarJuego() {
+  jugador.puntuacion = 0;
+  jugador.vidas = 3;
+  jugador.x = windowWidth / 2 - jugador.ancho / 2;
+  jugador.y = windowHeight - 150;
 
+  listaMisiles = [];
+  listaMisilesEnemigos = [];
+  listaEnemigos = [];
+
+  nivel = 1;
+  nivelTerminado = true;
+
+  juegoTerminado = false;
+
+  loop(); 
+}
 
 function numeroRandom(min, max) {
   const numeroMinimo = Math.ceil(min);
