@@ -10,7 +10,7 @@ let jugador = {
 };
 let listaMisiles = [];
 let listaMisilesEnemigos = [];
-let tiempoMisilEnemigo = 3000 
+let tiempoMisilEnemigo = 3000
 
 let listaEnemigos = [];
 let nivel = 1;
@@ -20,6 +20,10 @@ let juegoTerminado = false;
 
 function preload() {
   jugador.imagen = loadImage('./img/nave.png');
+  imgNaveEnemiga1 = loadImage('./img/nave_Enemiga.png');
+  imgNaveEnemiga2 = loadImage('./img/nave_Enemiga_II.png');
+  imgNaveEnemigaEspecial2 = loadImage('./img/nave_Enemiga_Especial_II.png');
+  fondo = loadImage('./img/fondo.jpg');
 }
 
 function setup() {
@@ -29,7 +33,7 @@ function setup() {
 }
 
 function draw() {
-  background("black");
+  background(fondo);
 
   fill("white")
   textSize(15);
@@ -38,14 +42,14 @@ function draw() {
   text('Puntuación: ' + jugador.puntuacion, 200, 30);
   text('Vidas restantes: ' + jugador.vidas, 350, 30);
 
-   if (jugador.vidas <= 0) {
+  if (jugador.vidas <= 0) {
     textSize(32);
     fill("white");
-    background("black"); 
+    background("black");
     textAlign(CENTER, CENTER);
-    text("¡Juego finalizado!", windowWidth/2, windowHeight/2 - 100);
+    text("¡Juego finalizado!", windowWidth / 2, windowHeight / 2 - 100);
     textSize(22);
-    text("Presiona Enter para volver a jugar", windowWidth/2, windowHeight/2);
+    text("Presiona Enter para volver a jugar", windowWidth / 2, windowHeight / 2);
     noLoop();
     juegoTerminado = true;
     return;
@@ -69,39 +73,48 @@ function draw() {
         listaMisiles[k].x + listaMisiles[k].ancho > listaEnemigos[i].x &&
         listaMisiles[k].y < listaEnemigos[i].y + listaEnemigos[i].alto &&
         listaMisiles[k].y + listaMisiles[k].alto > listaEnemigos[i].y) {
-        listaEnemigos.splice(i, 1);
+        listaEnemigos[i].vidas--;
         listaMisiles.splice(k, 1);
-        jugador.puntuacion++;
-        break;
+        console.log(listaEnemigos[i].vidas)
+        if (listaEnemigos[i].vidas == 0) {
+          listaEnemigos.splice(i, 1);
+          jugador.puntuacion++;
+          break;
+        }
       }
     }
   }
 
-    //VALIDAR COLISION MISIL ENEMIGO CON JUGADOR
+  if (listaEnemigos.length == 0) {
+    nivelTerminado = true;
+    nivel++;
+  }
+
+  //VALIDAR COLISION MISIL ENEMIGO CON JUGADOR
   for (let i = listaEnemigos.length - 1; i >= 0; i--) {
     for (let k = listaMisilesEnemigos.length - 1; k >= 0; k--) {
       if (listaMisilesEnemigos[k].x < jugador.x + jugador.ancho &&
         listaMisilesEnemigos[k].x + listaMisilesEnemigos[k].ancho > jugador.x &&
         listaMisilesEnemigos[k].y < jugador.y + jugador.alto + 30 &&
-        listaMisilesEnemigos[k].y + jugador.alto > jugador.y + 30) { 
-          listaMisilesEnemigos.splice(k, 1);
-          jugador.vidas--;
-          break;
+        listaMisilesEnemigos[k].y + jugador.alto > jugador.y + 30) {
+        listaMisilesEnemigos.splice(k, 1);
+        jugador.vidas--;
+        break;
       }
     }
   }
 
-  //DIBUJAR MISILES
+  //Eliminar misiles fuera de pantalla para liberar espacio del arreglo
   eliminarMisil();
   eliminarMisilEnemigo();
 
-  //MOVIMIENTO DE MISILES
+  //Dibujar misiles
   for (let i = listaMisiles.length - 1; i >= 0; i--) {
     fill(listaMisiles[i].colorFondo)
     rect(listaMisiles[i].x, listaMisiles[i].y, listaMisiles[i].ancho, listaMisiles[i].alto);
     listaMisiles[i].y -= 5;
   }
-    for (let i = listaMisilesEnemigos.length - 1; i >= 0; i--) {
+  for (let i = listaMisilesEnemigos.length - 1; i >= 0; i--) {
     fill(listaMisilesEnemigos[i].colorFondo)
     rect(listaMisilesEnemigos[i].x, listaMisilesEnemigos[i].y, listaMisilesEnemigos[i].ancho, listaMisilesEnemigos[i].alto);
     listaMisilesEnemigos[i].y += 5;
@@ -138,7 +151,7 @@ function crearMisil() {
   listaMisiles.push(misil);
 }
 function crearMisilEnemigo() {
-  if(listaEnemigos.length == 0){
+  if (listaEnemigos.length == 0 || nivel == 1) {
     return;
   }
 
@@ -147,7 +160,7 @@ function crearMisilEnemigo() {
   let misil = {
     alto: 60,
     ancho: 5,
-    colorFondo: "red",
+    colorFondo: "yellow",
     x: listaEnemigos[i].x + 33,
     y: listaEnemigos[i].y + 100
   };
@@ -175,10 +188,10 @@ function eliminarMisilEnemigo() {
 function nivelJuego() {
   switch (nivel) {
     case 1:
-      for (let i = 80; i <= 330; i += 100) {
+      for (let i = 80; i <= 280; i += 100) {
         for (let j = 700; j <= 1090; j += 130) {
           let enemigo = {
-            imagen: loadImage('./img/nave_Enemiga.png'),
+            imagen: imgNaveEnemiga1,
             vidas: 1,
             alto: 80,
             ancho: 70,
@@ -191,19 +204,56 @@ function nivelJuego() {
       }
       nivelTerminado = false;
       break;
+    case 2:
+      for (let i = 80; i <= 280; i += 100) {
+        for (let j = 440; j <= 1350; j += 130) {
+          let enemigo = {
+            imagen: imgNaveEnemiga2,
+            vidas: 1,
+            alto: 80,
+            ancho: 70,
+            x: j,
+            y: i,
+            direccionX: 1
+          };
+          listaEnemigos.push(enemigo);
+        }
+      }
+      //Crear de manera aleatoria el enemigo especial
+      const naveRandom = Math.floor(Math.random() * listaEnemigos.length);
+      listaEnemigos[naveRandom].imagen = imgNaveEnemigaEspecial2;
+      listaEnemigos[naveRandom].vidas = 3;
+      nivelTerminado = false;
+      break;
   }
 }
 
 function movimientoEnemigos() {
-  for (let i = listaEnemigos.length - 1; i >= 0; i--) {
-    image(listaEnemigos[i].imagen, listaEnemigos[i].x, listaEnemigos[i].y, listaEnemigos[i].ancho, listaEnemigos[i].alto);
-    listaEnemigos[i].x += listaEnemigos[i].direccionX * 2.5;
-    if(listaEnemigos[i].x + listaEnemigos[i].ancho >= windowWidth || listaEnemigos[i].x <= 0){
-      for (let k = listaEnemigos.length - 1; k >= 0; k--) {
-        listaEnemigos[k].direccionX = -listaEnemigos[k].direccionX;
-        listaEnemigos[k].y += 10;
+  switch (nivel) {
+    case 1:
+      for (let i = listaEnemigos.length - 1; i >= 0; i--) {
+        image(listaEnemigos[i].imagen, listaEnemigos[i].x, listaEnemigos[i].y, listaEnemigos[i].ancho, listaEnemigos[i].alto);
+        listaEnemigos[i].x += listaEnemigos[i].direccionX * 2.5;
+        if (listaEnemigos[i].x + listaEnemigos[i].ancho >= windowWidth || listaEnemigos[i].x <= 0) {
+          for (let k = listaEnemigos.length - 1; k >= 0; k--) {
+            listaEnemigos[k].direccionX = -listaEnemigos[k].direccionX;
+            listaEnemigos[k].y += 10;
+          }
+        }
       }
-    }
+      break;
+    case 2:
+      for (let i = listaEnemigos.length - 1; i >= 0; i--) {
+        image(listaEnemigos[i].imagen, listaEnemigos[i].x, listaEnemigos[i].y, listaEnemigos[i].ancho, listaEnemigos[i].alto);
+        listaEnemigos[i].x += listaEnemigos[i].direccionX * 2.5;
+        listaEnemigos[i].y += 0.15;
+        if (listaEnemigos[i].x + listaEnemigos[i].ancho >= windowWidth || listaEnemigos[i].x <= 0) {
+          for (let k = listaEnemigos.length - 1; k >= 0; k--) {
+            listaEnemigos[k].direccionX = -listaEnemigos[k].direccionX;
+          }
+        }
+      }
+      break;
   }
 }
 
@@ -222,11 +272,11 @@ function reiniciarJuego() {
 
   juegoTerminado = false;
 
-  loop(); 
+  loop();
 }
 
 function numeroRandom(min, max) {
   const numeroMinimo = Math.ceil(min);
   const numeroMaximo = Math.floor(max);
-  return Math.floor(Math.random() * (numeroMaximo - numeroMinimo) + numeroMinimo); 
+  return Math.floor(Math.random() * (numeroMaximo - numeroMinimo) + numeroMinimo);
 }
