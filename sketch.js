@@ -7,7 +7,7 @@ let jugador = {
   y: 0,
   vidas: 3
 };
-const STORAGE_KEY = "listaPuntaje"; 
+const STORAGE_KEY = "listaPuntaje";
 let listaMisiles = [];
 let listaMisilesEnemigos = [];
 let tiempoMisilEnemigo = 1500
@@ -17,6 +17,12 @@ let nivel = 1;
 let nivelTerminado = true;
 
 let juegoTerminado = false;
+
+let juegoEmpezado = false;
+let cuadradoEmpezarJuegoX = window.innerWidth;
+let cuadradoEmpezarJuegoY = window.innerHeight;
+let subirMenu = 0;
+let banderaTeclaEnter = false
 
 function preload() {
   jugador.imagen = loadImage('./img/nave.png');
@@ -37,6 +43,35 @@ function setup() {
 function draw() {
   background(fondo);
 
+  if (juegoEmpezado == false) {
+    let desplazamientoY = windowHeight - cuadradoEmpezarJuegoY;
+    fill('black')
+    rect(0, 0, cuadradoEmpezarJuegoX, cuadradoEmpezarJuegoY)
+    textSize(32);
+    fill("white");
+    textAlign(CENTER, CENTER);
+
+    text("Mejores puntuaciones", windowWidth / 2, windowHeight / 2 - 200 - desplazamientoY);
+    text("Pulsa Enter para jugar", windowWidth / 2, windowHeight / 2 + 350 - desplazamientoY);
+    textSize(22);
+    textAlign(LEFT, BASELINE);
+
+    const top5 = obtenerCincoMejores();
+    let bajarY = 30;
+
+    for (let i = 0; i < top5.length; i++) {
+      let yTexto = windowHeight / 2 + bajarY - 150 - desplazamientoY;
+      text(i + 1 + ". ", windowWidth / 2 - 160, yTexto);
+      text("000" + top5[i], windowWidth / 2 + 100, yTexto);
+      bajarY += 35;
+    }
+    cuadradoEmpezarJuegoY -= subirMenu;
+    if (cuadradoEmpezarJuegoY <= 0) {
+      juegoEmpezado = true
+    }
+    return;
+  }
+
   fill("white")
   textSize(15);
   textAlign(LEFT, BASELINE);
@@ -50,6 +85,7 @@ function draw() {
     background("black");
     textAlign(CENTER, CENTER);
     text("¡Juego finalizado!", windowWidth / 2, windowHeight / 2 - 100);
+    text("Puntuación alcanzada: " + jugador.puntuacion, windowWidth / 2, windowHeight / 2 + 280);
     textSize(22);
     text("Presiona Enter para volver a jugar", windowWidth / 2, windowHeight / 2);
 
@@ -82,7 +118,7 @@ function draw() {
         listaEnemigos[i].vidas--;
         listaMisiles.splice(k, 1);
         if (listaEnemigos[i].vidas == 0) {
-          jugador.puntuacion+=listaEnemigos[i].puntos;
+          jugador.puntuacion += listaEnemigos[i].puntos;
           listaEnemigos.splice(i, 1);
           break;
         }
@@ -135,13 +171,26 @@ function draw() {
 
 }
 
-//LANZAR MISILES CON LA TECLA ESPACIO
+
+
 function keyPressed() {
-  if (keyCode === 32) {
+  //LANZAR MISILES CON LA TECLA ESPACIO
+  if (keyCode === 32 && subirMenu > 0) {
     crearMisil();
   }
+  //REINICIAR JUEGO
   if (juegoTerminado && keyCode === ENTER) {
     reiniciarJuego();
+    banderaTeclaEnter = true;
+
+  }
+  //INICIAR JUEGO
+  if (!juegoTerminado && subirMenu == 0 && keyCode === ENTER) {
+    if (banderaTeclaEnter) {
+      banderaTeclaEnter = false;
+      return;
+    }
+    subirMenu = 8;
   }
 }
 
@@ -174,6 +223,21 @@ function crearMisilEnemigo() {
 
 //Ejecutar la función cada cierto tiempo
 setInterval(crearMisilEnemigo, tiempoMisilEnemigo)
+
+function transicionEmpezarJuego() {
+  if (juegoEmpezado == false) {
+    fill('black')
+    rect(0, 0, windowWidth, windowHeight - 100)
+    textSize(32);
+    fill("white");
+
+    text("¡Juego finalizado!", windowWidth / 2, windowHeight / 2 - 100);
+    noLoop()
+    return;
+  }
+
+
+}
 
 function eliminarMisil() {
   for (let i = listaMisiles.length - 1; i >= 0; i--) {
@@ -280,6 +344,11 @@ function reiniciarJuego() {
 
   juegoTerminado = false;
 
+  juegoEmpezado = false;
+  cuadradoEmpezarJuegoX = window.innerWidth;
+  cuadradoEmpezarJuegoY = window.innerHeight;
+  subirMenu = 0;
+
   loop();
 }
 
@@ -291,24 +360,24 @@ function numeroRandom(min, max) {
 
 function cargarPuntaje() {
   const json = localStorage.getItem(STORAGE_KEY);
-  if (!json){
-    return []; 
+  if (!json) {
+    return [];
   }
   try {
     const arr = JSON.parse(json);
-    if (Array.isArray(arr)){
+    if (Array.isArray(arr)) {
       return arr;
     }
-    else{
+    else {
       return [];
-    } 
+    }
   } catch (e) {
     console.warn("JSON inválido en localStorage.");
     return [];
   }
 }
 
-function guardarPuntaje(arreglo){
+function guardarPuntaje(arreglo) {
   const arregloNumeros = arreglo
     .map(n => parseInt(n))
     .filter(n => !isNaN(n));
