@@ -5,12 +5,12 @@ let jugador = {
   ancho: 70,
   x: 0,
   y: 0,
-  puntuacion: 0,
   vidas: 3
 };
+const STORAGE_KEY = "listaPuntaje"; 
 let listaMisiles = [];
 let listaMisilesEnemigos = [];
-let tiempoMisilEnemigo = 3000
+let tiempoMisilEnemigo = 1500
 
 let listaEnemigos = [];
 let nivel = 1;
@@ -30,6 +30,8 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   jugador.x = windowWidth / 2 - jugador.ancho / 2;
   jugador.y = windowHeight - 150;
+  const top5 = obtenerCincoMejores();
+  console.log("Top 5 actual:", top5);
 }
 
 function draw() {
@@ -50,6 +52,10 @@ function draw() {
     text("¡Juego finalizado!", windowWidth / 2, windowHeight / 2 - 100);
     textSize(22);
     text("Presiona Enter para volver a jugar", windowWidth / 2, windowHeight / 2);
+
+    const nuevaPuntuacion = insertarPuntaje(jugador.puntuacion);
+    console.log("Nueva puntuacion:", nuevaPuntuacion);
+
     noLoop();
     juegoTerminado = true;
     return;
@@ -75,10 +81,9 @@ function draw() {
         listaMisiles[k].y + listaMisiles[k].alto > listaEnemigos[i].y) {
         listaEnemigos[i].vidas--;
         listaMisiles.splice(k, 1);
-        console.log(listaEnemigos[i].vidas)
         if (listaEnemigos[i].vidas == 0) {
+          jugador.puntuacion+=listaEnemigos[i].puntos;
           listaEnemigos.splice(i, 1);
-          jugador.puntuacion++;
           break;
         }
       }
@@ -193,6 +198,7 @@ function nivelJuego() {
           let enemigo = {
             imagen: imgNaveEnemiga1,
             vidas: 1,
+            puntos: 1,
             alto: 80,
             ancho: 70,
             x: j,
@@ -210,6 +216,7 @@ function nivelJuego() {
           let enemigo = {
             imagen: imgNaveEnemiga2,
             vidas: 1,
+            puntos: 1,
             alto: 80,
             ancho: 70,
             x: j,
@@ -223,6 +230,7 @@ function nivelJuego() {
       const naveRandom = Math.floor(Math.random() * listaEnemigos.length);
       listaEnemigos[naveRandom].imagen = imgNaveEnemigaEspecial2;
       listaEnemigos[naveRandom].vidas = 3;
+      listaEnemigos[naveRandom].puntos = 3;
       nivelTerminado = false;
       break;
   }
@@ -279,4 +287,45 @@ function numeroRandom(min, max) {
   const numeroMinimo = Math.ceil(min);
   const numeroMaximo = Math.floor(max);
   return Math.floor(Math.random() * (numeroMaximo - numeroMinimo) + numeroMinimo);
+}
+
+function cargarPuntaje() {
+  const json = localStorage.getItem(STORAGE_KEY);
+  if (!json){
+    return []; 
+  }
+  try {
+    const arr = JSON.parse(json);
+    if (Array.isArray(arr)){
+      return arr;
+    }
+    else{
+      return [];
+    } 
+  } catch (e) {
+    console.warn("JSON inválido en localStorage.");
+    return [];
+  }
+}
+
+function guardarPuntaje(arreglo){
+  const arregloNumeros = arreglo
+    .map(n => parseInt(n))
+    .filter(n => !isNaN(n));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(arregloNumeros));
+}
+
+function insertarPuntaje(nuevaPuntacion) {
+  const puntajesActuales = cargarPuntaje();
+  puntajesActuales.push(nuevaPuntacion);
+  puntajesActuales.sort((a, b) => b - a);
+  const top5 = puntajesActuales.slice(0, 5);
+  guardarPuntaje(top5);
+  return top5;
+}
+
+function obtenerCincoMejores() {
+  const listaPuntuaciones = cargarPuntaje();
+  listaPuntuaciones.sort((a, b) => b - a);
+  return listaPuntuaciones.slice(0, 5);
 }
