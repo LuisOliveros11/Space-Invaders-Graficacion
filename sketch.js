@@ -19,8 +19,9 @@ let nivelTerminado = true;
 let juegoTerminado = false;
 
 let juegoEmpezado = false;
-let cuadradoEmpezarJuegoX = window.innerWidth;
+let cuadradoEmpezarJuegoX = window.innerWidth - 500;
 let cuadradoEmpezarJuegoY = window.innerHeight;
+let limiteAnchoCanvas = 500;
 let subirMenu = 0;
 let banderaTeclaEnter = false
 
@@ -28,7 +29,11 @@ let transicion_bandera = true;
 let contador_transicion = 0
 
 function preload() {
+  portada = loadImage("./img/portada.jpg")
+
   jugador.imagen = loadImage('./img/nave.png');
+  vidas_restantes = loadImage("./img/vidas.png")
+
   imgNaveEnemiga1 = loadImage('./img/nave_Enemiga.png');
   imgNaveEnemiga2 = loadImage('./img/nave_Enemiga_II.png');
   imgNaveEnemigaEspecial2 = loadImage('./img/nave_Enemiga_Especial_II.png');
@@ -44,30 +49,17 @@ function setup() {
 }
 
 function draw() {
-  background(fondo);
+  image(fondo, -limiteAnchoCanvas, 0, windowWidth, windowHeight);
 
+  //BARRA LATERAL
+  fill('black');
+  noStroke();
+  rect(windowWidth - limiteAnchoCanvas, 0, limiteAnchoCanvas, windowHeight);
+
+  //MOSTRAR PANTALLA DE INICIO
   if (juegoEmpezado == false) {
-    let desplazamientoY = windowHeight - cuadradoEmpezarJuegoY;
-    fill('black')
-    rect(0, 0, cuadradoEmpezarJuegoX, cuadradoEmpezarJuegoY)
-    textSize(32);
-    fill("white");
-    textAlign(CENTER, CENTER);
+    image(portada,0, 0, windowWidth, cuadradoEmpezarJuegoY)
 
-    text("Mejores puntuaciones", windowWidth / 2, windowHeight / 2 - 200 - desplazamientoY);
-    text("Pulsa Enter para jugar", windowWidth / 2, windowHeight / 2 + 350 - desplazamientoY);
-    textSize(22);
-    textAlign(LEFT, BASELINE);
-
-    const top5 = obtenerCincoMejores();
-    let bajarY = 30;
-
-    for (let i = 0; i < top5.length; i++) {
-      let yTexto = windowHeight / 2 + bajarY - 150 - desplazamientoY;
-      text(i + 1 + ". ", windowWidth / 2 - 160, yTexto);
-      text("000" + top5[i], windowWidth / 2 + 100, yTexto);
-      bajarY += 35;
-    }
     cuadradoEmpezarJuegoY -= subirMenu;
     if (cuadradoEmpezarJuegoY <= 0) {
       juegoEmpezado = true
@@ -75,22 +67,42 @@ function draw() {
     return;
   }
 
+  //INFORMACIÓN DENTRO DE LA BARRA LATERAL (NIVEL, VIDAS, ETC)
+  fill('white');
+  textAlign(LEFT);
+  textSize(35);
+  const barraLateralX = windowWidth - limiteAnchoCanvas + 50;
+  text("Nivel:  " + nivel, barraLateralX, 130);
+  text("Puntuación:  " + mostrar_puntaje(jugador.puntuacion), barraLateralX, 180);
+  text("Vidas:  ", barraLateralX, 380);
+  mostrar_vidas()
+
   fill("white")
   textSize(15);
-  textAlign(LEFT, BASELINE);
-  text('Nivel: ' + nivel, 100, 30);
-  text('Puntuación: ' + jugador.puntuacion, 200, 30);
-  text('Vidas restantes: ' + jugador.vidas, 350, 30);
+
 
   if (jugador.vidas <= 0) {
+    textSize(50);
+    text("Tu puntuación es de: " + mostrar_puntaje(jugador.puntuacion), windowWidth / 2 - 350, windowHeight / 2 - 400);
     textSize(32);
     fill("white");
-    background("black");
     textAlign(CENTER, CENTER);
-    text("¡Juego finalizado!", windowWidth / 2, windowHeight / 2 - 100);
-    text("Puntuación alcanzada: " + jugador.puntuacion, windowWidth / 2, windowHeight / 2 + 280);
+
+    text("Mejores puntuaciones", windowWidth / 2, windowHeight / 2 - 200);
     textSize(22);
-    text("Presiona Enter para volver a jugar", windowWidth / 2, windowHeight / 2);
+    textAlign(LEFT, BASELINE);
+
+    const top5 = obtenerCincoMejores();
+    let bajarY = 30;
+
+    for (let i = 0; i < top5.length; i++) {
+      let yTexto = windowHeight / 2 + bajarY - 150;
+      text(i + 1 + ". ", windowWidth / 2 - 160, yTexto);
+      text(mostrar_puntaje(top5[i]), windowWidth / 2 + 100, yTexto);
+      bajarY += 35;
+    }
+    
+    text("Presiona Enter para volver a jugar", windowWidth / 2 - 170, windowHeight / 2 + 200);
 
     const nuevaPuntuacion = insertarPuntaje(jugador.puntuacion);
     console.log("Nueva puntuacion:", nuevaPuntuacion);
@@ -104,7 +116,7 @@ function draw() {
   if (nivelTerminado) {
     console.log("alo")
     contador_transicion = 0
-        transicion_bandera = true;
+    transicion_bandera = true;
 
     nivelJuego();
   }
@@ -270,7 +282,7 @@ function eliminarMisilEnemigo() {
 function nivelJuego() {
   switch (nivel) {
     case 1:
-      for (let i = -280; i <= 180; i += 100) {
+      for (let i = -180; i <= 180; i += 100) {
         for (let j = 700; j <= 1090; j += 130) {
           let enemigo = {
             imagen: imgNaveEnemiga1,
@@ -319,7 +331,7 @@ function movimientoEnemigos() {
       for (let i = listaEnemigos.length - 1; i >= 0; i--) {
         image(listaEnemigos[i].imagen, listaEnemigos[i].x, listaEnemigos[i].y, listaEnemigos[i].ancho, listaEnemigos[i].alto);
         listaEnemigos[i].x += listaEnemigos[i].direccionX * 2.5;
-        if (listaEnemigos[i].x + listaEnemigos[i].ancho >= windowWidth || listaEnemigos[i].x <= 0) {
+        if (listaEnemigos[i].x + listaEnemigos[i].ancho >= windowWidth - limiteAnchoCanvas || listaEnemigos[i].x <= 0) {
           for (let k = listaEnemigos.length - 1; k >= 0; k--) {
             listaEnemigos[k].direccionX = -listaEnemigos[k].direccionX;
             listaEnemigos[k].y += 10;
@@ -332,7 +344,7 @@ function movimientoEnemigos() {
         image(listaEnemigos[i].imagen, listaEnemigos[i].x, listaEnemigos[i].y, listaEnemigos[i].ancho, listaEnemigos[i].alto);
         listaEnemigos[i].x += listaEnemigos[i].direccionX * 2.5;
         listaEnemigos[i].y += 0.15;
-        if (listaEnemigos[i].x + listaEnemigos[i].ancho >= windowWidth || listaEnemigos[i].x <= 0) {
+        if (listaEnemigos[i].x + listaEnemigos[i].ancho >= windowWidth - limiteAnchoCanvas || listaEnemigos[i].x <= 0) {
           for (let k = listaEnemigos.length - 1; k >= 0; k--) {
             listaEnemigos[k].direccionX = -listaEnemigos[k].direccionX;
           }
@@ -414,6 +426,21 @@ function obtenerCincoMejores() {
   listaPuntuaciones.sort((a, b) => b - a);
   return listaPuntuaciones.slice(0, 5);
 }
+
+function mostrar_puntaje(puntuacion, longitud = 5) {
+  return puntuacion.toString().padStart(longitud, '0');
+}
+function mostrar_vidas() {
+
+  const barraLateralX = windowWidth - limiteAnchoCanvas + 50;
+
+  let saltoPosicionX = 0;
+  for (let i = 0; i < jugador.vidas; i++) {
+    image(vidas_restantes, barraLateralX + (saltoPosicionX + 130), 380 - 35, 50, 50);
+    saltoPosicionX += 60;
+  }
+}
+
 
 function transicion() {
   if (transicion_bandera) {
