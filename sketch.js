@@ -24,6 +24,9 @@ let cuadradoEmpezarJuegoY = window.innerHeight;
 let subirMenu = 0;
 let banderaTeclaEnter = false
 
+let transicion_bandera = true;
+let contador_transicion = 0
+
 function preload() {
   jugador.imagen = loadImage('./img/nave.png');
   imgNaveEnemiga1 = loadImage('./img/nave_Enemiga.png');
@@ -99,14 +102,24 @@ function draw() {
   }
 
   if (nivelTerminado) {
+    console.log("alo")
+    contador_transicion = 0
+        transicion_bandera = true;
+
     nivelJuego();
   }
+
 
   //DIBUJAR JUGADOR
   image(jugador.imagen, jugador.x, jugador.y, jugador.ancho, jugador.alto);
 
   //MOVIMIENTO DE LOS ENEMIGOS
-  movimientoEnemigos()
+  if (transicion_bandera) {
+    transicion();
+  } else {
+    movimientoEnemigos();
+  }
+
 
   //VALIDAR COLISION MISIL JUGADOR CON NAVE ENEMIGA
   for (let i = listaEnemigos.length - 1; i >= 0; i--) {
@@ -257,7 +270,7 @@ function eliminarMisilEnemigo() {
 function nivelJuego() {
   switch (nivel) {
     case 1:
-      for (let i = 80; i <= 280; i += 100) {
+      for (let i = -280; i <= 180; i += 100) {
         for (let j = 700; j <= 1090; j += 130) {
           let enemigo = {
             imagen: imgNaveEnemiga1,
@@ -275,7 +288,7 @@ function nivelJuego() {
       nivelTerminado = false;
       break;
     case 2:
-      for (let i = 80; i <= 280; i += 100) {
+      for (let i = -280; i <= 180; i += 100) {
         for (let j = 440; j <= 1350; j += 130) {
           let enemigo = {
             imagen: imgNaveEnemiga2,
@@ -349,6 +362,9 @@ function reiniciarJuego() {
   cuadradoEmpezarJuegoY = window.innerHeight;
   subirMenu = 0;
 
+  transicion_bandera = true;
+  contador_transicion = 0;
+
   loop();
 }
 
@@ -397,4 +413,20 @@ function obtenerCincoMejores() {
   const listaPuntuaciones = cargarPuntaje();
   listaPuntuaciones.sort((a, b) => b - a);
   return listaPuntuaciones.slice(0, 5);
+}
+
+function transicion() {
+  if (transicion_bandera) {
+
+    for (let i = listaEnemigos.length - 1; i >= 0; i--) {
+      image(listaEnemigos[i].imagen, listaEnemigos[i].x, listaEnemigos[i].y, listaEnemigos[i].ancho, listaEnemigos[i].alto);
+      listaEnemigos[i].y += 3;
+    }
+
+    contador_transicion += 1;
+
+    if (contador_transicion >= 60) {
+      transicion_bandera = false;
+    }
+  }
 }
