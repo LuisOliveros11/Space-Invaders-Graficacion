@@ -12,6 +12,7 @@ let listaMisiles = [];
 let listaMisilesEnemigos = [];
 let tiempoMisilEnemigo = 0
 let intervaloMisilesEnemigos = null;
+let enemigosQueHanDisparado = [];
 
 let musicaFondo;
 let disparoJugador;
@@ -263,21 +264,38 @@ function crearMisil() {
   listaMisiles.push(misil);
 }
 function crearMisilEnemigo() {
-  if (listaEnemigos.length == 0 || nivel == 1 || jugador.vidas == 0) {
+  if (listaEnemigos.length === 0 || nivel === 1 || jugador.vidas === 0) {
     return;
   }
 
-  let i = numeroRandom(0, listaEnemigos.length)
+  // Si ya todos dispararon, reiniciar la lista
+  if (enemigosQueHanDisparado.length >= listaEnemigos.length) {
+    enemigosQueHanDisparado = [];
+  }
 
+  let EnemigosQueNoHanDisparado = [];
+  for (let i = 0; i < listaEnemigos.length; i++) {
+    if (!enemigosQueHanDisparado.includes(i)) {
+      EnemigosQueNoHanDisparado.push(i);
+    }
+  }
+
+  //Seleccionar uno aleatorio de los enemigos que no han disparado
+  let indiceAleatorio = numeroRandom(0, EnemigosQueNoHanDisparado.length);
+  let i = EnemigosQueNoHanDisparado[indiceAleatorio];
+
+  // Crear misil
   let misil = {
     alto: 60,
     ancho: 5,
     colorFondo: "yellow",
     x: listaEnemigos[i].x + 33,
     y: listaEnemigos[i].y + 100
-  };
+  };  
+  console.log("dispara: " + i)
   listaMisilesEnemigos.push(misil);
   disparoNaveII.play();
+  enemigosQueHanDisparado.push(i);
 }
 
 //Ejecutar la función cada cierto tiempo
