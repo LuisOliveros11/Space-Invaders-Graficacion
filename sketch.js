@@ -58,7 +58,27 @@ function draw() {
 
   //MOSTRAR PANTALLA DE INICIO
   if (juegoEmpezado == false) {
+    let desplazamientoY = windowHeight - cuadradoEmpezarJuegoY;
     image(portada, 0, 0, windowWidth, cuadradoEmpezarJuegoY)
+    textSize(32);
+    fill("white");
+    textAlign(CENTER, CENTER);
+
+    text("Mejores puntuaciones", windowWidth / 2, windowHeight / 2 - 200 - desplazamientoY);
+    textSize(22);
+    textAlign(LEFT, BASELINE);
+
+    const top5 = obtenerCincoMejores();
+    let bajarY = 30;
+
+    for (let i = 0; i < top5.length; i++) {
+      let yTexto = windowHeight / 2 + bajarY - 150 - desplazamientoY;
+      text(i + 1 + ". ", windowWidth / 2 - 160, yTexto);
+      text(mostrar_puntaje(top5[i]), windowWidth / 2 + 100, yTexto);
+      bajarY += 35;
+    }
+
+    text("Presiona Enter para a jugar", windowWidth / 2 - 140, windowHeight / 2 + 200 - desplazamientoY);
 
     cuadradoEmpezarJuegoY -= subirMenu;
     if (cuadradoEmpezarJuegoY <= 0) {
@@ -84,25 +104,8 @@ function draw() {
   if (jugador.vidas <= 0) {
     textSize(50);
     text("Tu puntuación es de: " + mostrar_puntaje(jugador.puntuacion), windowWidth / 2 - 350, windowHeight / 2 - 400);
-    textSize(32);
-    fill("white");
-    textAlign(CENTER, CENTER);
 
-    text("Mejores puntuaciones", windowWidth / 2, windowHeight / 2 - 200);
-    textSize(22);
-    textAlign(LEFT, BASELINE);
-
-    const top5 = obtenerCincoMejores();
-    let bajarY = 30;
-
-    for (let i = 0; i < top5.length; i++) {
-      let yTexto = windowHeight / 2 + bajarY - 150;
-      text(i + 1 + ". ", windowWidth / 2 - 160, yTexto);
-      text(mostrar_puntaje(top5[i]), windowWidth / 2 + 100, yTexto);
-      bajarY += 35;
-    }
-
-    text("Presiona Enter para volver a jugar", windowWidth / 2 - 170, windowHeight / 2 + 200);
+    text("Presiona Enter para volver a jugar", windowWidth / 2 - 400, windowHeight / 2 + 200);
 
     const nuevaPuntuacion = insertarPuntaje(jugador.puntuacion);
     console.log("Nueva puntuacion:", nuevaPuntuacion);
@@ -135,12 +138,12 @@ function draw() {
   //VALIDAR COLISION JUGADOR CON NAVE ENEMIGA
   for (let i = listaEnemigos.length - 1; i >= 0; i--) {
     if (listaEnemigos[i].x < jugador.x + jugador.ancho &&
-        listaEnemigos[i].x + listaEnemigos[i].ancho > jugador.x &&
-        listaEnemigos[i].y < jugador.y + jugador.alto + 30 &&
-        listaEnemigos[i].y + jugador.alto > jugador.y + 30) {
-        jugador.vidas--;
-        break;
-      }
+      listaEnemigos[i].x + listaEnemigos[i].ancho > jugador.x &&
+      listaEnemigos[i].y < jugador.y + jugador.alto + 30 &&
+      listaEnemigos[i].y + jugador.alto > jugador.y + 30) {
+      jugador.vidas--;
+      break;
+    }
   }
 
   if (listaEnemigos.length == 0) {
