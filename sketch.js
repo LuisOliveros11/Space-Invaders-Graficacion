@@ -11,7 +11,10 @@ const STORAGE_KEY = "listaPuntaje";
 let listaMisiles = [];
 let listaMisilesEnemigos = [];
 let tiempoMisilEnemigo = 1500
-
+let musicaFondo;
+let disparoJugador;
+let disparoNaveII;
+let naveDestruida;
 let listaEnemigos = [];
 let nivel = 1;
 let nivelTerminado = true;
@@ -30,7 +33,10 @@ let contador_transicion = 0
 
 function preload() {
   portada = loadImage("./img/portada.jpg")
-
+  musicaFondo = loadSound('sound/musica_Fondo.mp3');
+  disparoJugador = loadSound('sound/disparo.mp3');
+  naveDestruida = loadSound('sound/nave_Destruida.mp3');
+  disparoNaveII = loadSound('sound/disparo_Nave_II.mp3');
   jugador.imagen = loadImage('./img/nave.png');
   vidas_restantes = loadImage("./img/vidas.png")
 
@@ -42,10 +48,10 @@ function preload() {
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  jugador.x = windowWidth / 2 - jugador.ancho / 2;
+  jugador.x = (windowWidth / 2 - 200) - jugador.ancho / 2;
   jugador.y = windowHeight - 150;
-  const top5 = obtenerCincoMejores();
-  console.log("Top 5 actual:", top5);
+  musicaFondo.setVolume(0.5);
+  musicaFondo.loop();
 }
 
 function draw() {
@@ -64,7 +70,7 @@ function draw() {
     fill("white");
     textAlign(CENTER, CENTER);
 
-    text("Mejores puntuaciones", windowWidth / 2, windowHeight / 2 - 200 - desplazamientoY);
+    text("Mejores puntuaciones", windowWidth / 2, 50 - desplazamientoY);
     textSize(22);
     textAlign(LEFT, BASELINE);
 
@@ -72,13 +78,15 @@ function draw() {
     let bajarY = 30;
 
     for (let i = 0; i < top5.length; i++) {
-      let yTexto = windowHeight / 2 + bajarY - 150 - desplazamientoY;
+      let yTexto = 220 + bajarY - 150 - desplazamientoY;
       text(i + 1 + ". ", windowWidth / 2 - 160, yTexto);
       text(mostrar_puntaje(top5[i]), windowWidth / 2 + 100, yTexto);
       bajarY += 35;
     }
 
-    text("Presiona Enter para a jugar", windowWidth / 2 - 140, windowHeight / 2 + 200 - desplazamientoY);
+    textSize(42);
+    textAlign(CENTER, CENTER);
+    text("Presiona Enter para a jugar", windowWidth / 2, windowHeight / 2 + 350 - desplazamientoY);
 
     cuadradoEmpezarJuegoY -= subirMenu;
     if (cuadradoEmpezarJuegoY <= 0) {
@@ -103,9 +111,9 @@ function draw() {
 
   if (jugador.vidas <= 0) {
     textSize(50);
-    text("Tu puntuación es de: " + mostrar_puntaje(jugador.puntuacion), windowWidth / 2 - 350, windowHeight / 2 - 400);
+    text("Tu puntuación es de: " + mostrar_puntaje(jugador.puntuacion), windowWidth / 2 - 550, windowHeight / 2 - 400);
 
-    text("Presiona Enter para volver a jugar", windowWidth / 2 - 400, windowHeight / 2 + 200);
+    text("Presiona Enter para volver a jugar", windowWidth / 2 - 600, windowHeight / 2 + 200);
 
     const nuevaPuntuacion = insertarPuntaje(jugador.puntuacion);
     console.log("Nueva puntuacion:", nuevaPuntuacion);
@@ -163,6 +171,7 @@ function draw() {
         if (listaEnemigos[i].vidas == 0) {
           jugador.puntuacion += listaEnemigos[i].puntos;
           listaEnemigos.splice(i, 1);
+          naveDestruida.play();
           break;
         }
       }
@@ -220,6 +229,7 @@ function keyPressed() {
   //LANZAR MISILES CON LA TECLA ESPACIO
   if (keyCode === 32 && subirMenu > 0) {
     crearMisil();
+    disparoJugador.play();
   }
   //REINICIAR JUEGO
   if (juegoTerminado && keyCode === ENTER) {
@@ -248,7 +258,7 @@ function crearMisil() {
   listaMisiles.push(misil);
 }
 function crearMisilEnemigo() {
-  if (listaEnemigos.length == 0 || nivel == 1) {
+  if (listaEnemigos.length == 0 || nivel == 1 || jugador.vidas == 0) {
     return;
   }
 
@@ -262,6 +272,7 @@ function crearMisilEnemigo() {
     y: listaEnemigos[i].y + 100
   };
   listaMisilesEnemigos.push(misil);
+  disparoNaveII.play();
 }
 
 //Ejecutar la función cada cierto tiempo
@@ -301,7 +312,7 @@ function nivelJuego() {
   switch (nivel) {
     case 1:
       for (let i = -180; i <= 180; i += 100) {
-        for (let j = 700; j <= 1090; j += 130) {
+        for (let j = 500; j <= 890; j += 130) {
           let enemigo = {
             imagen: imgNaveEnemiga1,
             vidas: 1,
@@ -318,8 +329,8 @@ function nivelJuego() {
       nivelTerminado = false;
       break;
     case 2:
-      for (let i = -280; i <= 180; i += 100) {
-        for (let j = 440; j <= 1350; j += 130) {
+      for (let i = -280; i < 80; i += 100) {
+        for (let j = 140; j <= 1250; j += 130) {
           let enemigo = {
             imagen: imgNaveEnemiga2,
             vidas: 1,
@@ -365,7 +376,7 @@ function movimientoEnemigos() {
       for (let i = listaEnemigos.length - 1; i >= 0; i--) {
         image(listaEnemigos[i].imagen, listaEnemigos[i].x, listaEnemigos[i].y, listaEnemigos[i].ancho, listaEnemigos[i].alto);
         listaEnemigos[i].x += listaEnemigos[i].direccionX * 2.5;
-        listaEnemigos[i].y += 0.15;
+        listaEnemigos[i].y += 0.35;
         if (listaEnemigos[i].x + listaEnemigos[i].ancho >= windowWidth - limiteAnchoCanvas || listaEnemigos[i].x <= 0) {
           for (let k = listaEnemigos.length - 1; k >= 0; k--) {
             listaEnemigos[k].direccionX = -listaEnemigos[k].direccionX;
