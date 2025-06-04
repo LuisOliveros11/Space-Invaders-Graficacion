@@ -58,7 +58,7 @@ function draw() {
 
   //MOSTRAR PANTALLA DE INICIO
   if (juegoEmpezado == false) {
-    image(portada,0, 0, windowWidth, cuadradoEmpezarJuegoY)
+    image(portada, 0, 0, windowWidth, cuadradoEmpezarJuegoY)
 
     cuadradoEmpezarJuegoY -= subirMenu;
     if (cuadradoEmpezarJuegoY <= 0) {
@@ -101,7 +101,7 @@ function draw() {
       text(mostrar_puntaje(top5[i]), windowWidth / 2 + 100, yTexto);
       bajarY += 35;
     }
-    
+
     text("Presiona Enter para volver a jugar", windowWidth / 2 - 170, windowHeight / 2 + 200);
 
     const nuevaPuntuacion = insertarPuntaje(jugador.puntuacion);
@@ -132,6 +132,21 @@ function draw() {
     movimientoEnemigos();
   }
 
+  //VALIDAR COLISION JUGADOR CON NAVE ENEMIGA
+  for (let i = listaEnemigos.length - 1; i >= 0; i--) {
+    if (listaEnemigos[i].x < jugador.x + jugador.ancho &&
+        listaEnemigos[i].x + listaEnemigos[i].ancho > jugador.x &&
+        listaEnemigos[i].y < jugador.y + jugador.alto + 30 &&
+        listaEnemigos[i].y + jugador.alto > jugador.y + 30) {
+        jugador.vidas--;
+        break;
+      }
+  }
+
+  if (listaEnemigos.length == 0) {
+    nivelTerminado = true;
+    nivel++;
+  }
 
   //VALIDAR COLISION MISIL JUGADOR CON NAVE ENEMIGA
   for (let i = listaEnemigos.length - 1; i >= 0; i--) {
@@ -337,6 +352,10 @@ function movimientoEnemigos() {
             listaEnemigos[k].y += 10;
           }
         }
+        //SI EL ENEMIGO TOCA EL FONDO, EL JUGADOR PIERDE UNA VIDA
+        if (listaEnemigos[i].y + listaEnemigos[i].alto >= windowHeight) {
+          jugador.vidas--;
+        }
       }
       break;
     case 2:
@@ -430,6 +449,7 @@ function obtenerCincoMejores() {
 function mostrar_puntaje(puntuacion, longitud = 5) {
   return puntuacion.toString().padStart(longitud, '0');
 }
+
 function mostrar_vidas() {
 
   const barraLateralX = windowWidth - limiteAnchoCanvas + 50;
@@ -440,7 +460,6 @@ function mostrar_vidas() {
     saltoPosicionX += 60;
   }
 }
-
 
 function transicion() {
   if (transicion_bandera) {
