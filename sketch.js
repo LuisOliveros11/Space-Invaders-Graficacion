@@ -7,12 +7,25 @@ let jugador = {
   y: 0,
   vidas: 3
 };
+
+let jefeFinal = {
+  imagen: null,
+  vidas: 10,
+  puntos: 100,
+  alto: 80,
+  ancho: 70,
+  x: 200,
+  y: 200,
+  direccionX: 3
+}
 const STORAGE_KEY = "listaPuntaje";
 let listaMisiles = [];
 let listaMisilesEnemigos = [];
 let tiempoMisilEnemigo = 0
 let intervaloMisilesEnemigos = null;
 let enemigosQueHanDisparado = [];
+
+let apareceJefeFinal = false;
 
 let musicaFondo;
 let disparoJugador;
@@ -45,6 +58,7 @@ function preload() {
 
   imgNaveEnemiga1 = loadImage('./img/nave_Enemiga.png');
   imgNaveEnemiga2 = loadImage('./img/nave_Enemiga_II.png');
+  jefeFinal.imagen = loadImage('./img/nave_Enemiga_II.png');
   imgNaveEnemigaEspecial2 = loadImage('./img/nave_Enemiga_Especial_II.png');
   fondo = loadImage('./img/fondo.jpg');
 }
@@ -160,11 +174,6 @@ function draw() {
     }
   }
 
-  if (listaEnemigos.length == 0) {
-    nivelTerminado = true;
-    nivel++;
-  }
-
   //VALIDAR COLISION MISIL JUGADOR CON NAVE ENEMIGA
   for (let i = listaEnemigos.length - 1; i >= 0; i--) {
     for (let k = listaMisiles.length - 1; k >= 0; k--) {
@@ -184,10 +193,15 @@ function draw() {
     }
   }
 
-  if (listaEnemigos.length == 0) {
+  if (listaEnemigos.length == 0 && nivel != 3) {
     nivelTerminado = true;
     nivel++;
   }
+  else if (listaEnemigos.length == 0 && nivel == 3) {
+    console.log("aparece")
+    apareceJefeFinal = true
+  }
+
 
   //VALIDAR COLISION MISIL ENEMIGO CON JUGADOR
   for (let i = listaEnemigos.length - 1; i >= 0; i--) {
@@ -291,7 +305,7 @@ function crearMisilEnemigo() {
     colorFondo: "yellow",
     x: listaEnemigos[i].x + 33,
     y: listaEnemigos[i].y + 100
-  };  
+  };
   console.log("dispara: " + i)
   listaMisilesEnemigos.push(misil);
   disparoNaveII.play();
@@ -466,6 +480,15 @@ function movimientoEnemigos() {
       }
       break;
   }
+  if (apareceJefeFinal) {
+    image(jefeFinal.imagen, jefeFinal.x, jefeFinal.y, jefeFinal.ancho, jefeFinal.alto)
+
+    jefeFinal.x += jefeFinal.direccionX;
+    jefeFinal.y += 1;
+    if (jefeFinal.x + jefeFinal.ancho >= windowWidth - limiteAnchoCanvas || jefeFinal.x <= 0) {
+      jefeFinal.direccionX = -jefeFinal.direccionX;
+    }
+  }
 }
 
 
@@ -478,6 +501,7 @@ function reiniciarJuego() {
   listaMisiles = [];
   listaMisilesEnemigos = [];
   listaEnemigos = [];
+  apareceJefeFinal = false;
 
   nivel = 1;
   nivelTerminado = true;
