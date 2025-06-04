@@ -10,7 +10,9 @@ let jugador = {
 const STORAGE_KEY = "listaPuntaje";
 let listaMisiles = [];
 let listaMisilesEnemigos = [];
-let tiempoMisilEnemigo = 1500
+let tiempoMisilEnemigo = 0
+let intervaloMisilesEnemigos = null;
+
 let musicaFondo;
 let disparoJugador;
 let disparoNaveII;
@@ -76,6 +78,9 @@ function draw() {
 
     const top5 = obtenerCincoMejores();
     let bajarY = 30;
+    if (top5.length == 0) {
+      text("Aún no hay puntuaciones registradas", windowWidth / 2 - 180, 130 - desplazamientoY);
+    }
 
     for (let i = 0; i < top5.length; i++) {
       let yTexto = 220 + bajarY - 150 - desplazamientoY;
@@ -125,7 +130,6 @@ function draw() {
   }
 
   if (nivelTerminado) {
-    console.log("alo")
     contador_transicion = 0
     transicion_bandera = true;
 
@@ -142,6 +146,7 @@ function draw() {
   } else {
     movimientoEnemigos();
   }
+
 
   //VALIDAR COLISION JUGADOR CON NAVE ENEMIGA
   for (let i = listaEnemigos.length - 1; i >= 0; i--) {
@@ -276,7 +281,24 @@ function crearMisilEnemigo() {
 }
 
 //Ejecutar la función cada cierto tiempo
-setInterval(crearMisilEnemigo, tiempoMisilEnemigo)
+function configurarMisilesEnemigos() {
+  //Antes de crear un nuevo setInterval, limpiamos el anterior (si existía):
+  if (intervaloMisilesEnemigos !== null) {
+    clearInterval(intervaloMisilesEnemigos);
+    intervaloMisilesEnemigos = null;
+  }
+
+  if (nivel === 2) {
+    tiempoMisilEnemigo = 1000;
+  } else if (nivel === 3) {
+    tiempoMisilEnemigo = 500;
+  } else {
+    return;
+  }
+  console.log("ya")
+
+  intervaloMisilesEnemigos = setInterval(crearMisilEnemigo, tiempoMisilEnemigo);
+}
 
 function transicionEmpezarJuego() {
   if (juegoEmpezado == false) {
@@ -349,6 +371,35 @@ function nivelJuego() {
       listaEnemigos[naveRandom].imagen = imgNaveEnemigaEspecial2;
       listaEnemigos[naveRandom].vidas = 3;
       listaEnemigos[naveRandom].puntos = 3;
+      configurarMisilesEnemigos()
+      nivelTerminado = false;
+      break;
+    case 3:
+      for (let i = -280; i < 80; i += 100) {
+        for (let j = 140; j <= 1250; j += 130) {
+          let enemigo = {
+            imagen: imgNaveEnemiga2,
+            vidas: 1,
+            puntos: 1,
+            alto: 80,
+            ancho: 70,
+            x: j,
+            y: i,
+            direccionX: 1
+          };
+          listaEnemigos.push(enemigo);
+        }
+      }
+      //Crear de manera aleatoria el enemigo especial
+      let i = 0
+      while (i < 2) {
+        i++
+        const navesRandom = Math.floor(Math.random() * listaEnemigos.length);
+        listaEnemigos[navesRandom].imagen = imgNaveEnemigaEspecial2;
+        listaEnemigos[navesRandom].vidas = 3;
+        listaEnemigos[navesRandom].puntos = 3;
+      }
+      configurarMisilesEnemigos()
       nivelTerminado = false;
       break;
   }
@@ -384,8 +435,21 @@ function movimientoEnemigos() {
         }
       }
       break;
+    case 3:
+      for (let i = listaEnemigos.length - 1; i >= 0; i--) {
+        image(listaEnemigos[i].imagen, listaEnemigos[i].x, listaEnemigos[i].y, listaEnemigos[i].ancho, listaEnemigos[i].alto);
+        listaEnemigos[i].x += listaEnemigos[i].direccionX * 2.5;
+        listaEnemigos[i].y += 0.35;
+        if (listaEnemigos[i].x + listaEnemigos[i].ancho >= windowWidth - limiteAnchoCanvas || listaEnemigos[i].x <= 0) {
+          for (let k = listaEnemigos.length - 1; k >= 0; k--) {
+            listaEnemigos[k].direccionX = -listaEnemigos[k].direccionX;
+          }
+        }
+      }
+      break;
   }
 }
+
 
 function reiniciarJuego() {
   jugador.puntuacion = 0;
