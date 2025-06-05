@@ -5,7 +5,7 @@ let jugador = {
   ancho: 70,
   x: 0,
   y: 0,
-  vidas: 3
+  vidas: 333
 };
 
 let jefeFinal = {
@@ -286,14 +286,22 @@ function draw() {
 
   //FINALIZAR JUEGO SI EL JUGADOR DESTRUYE AL JEFE FINAL
   if (jefeFinal.vidas == 0) {
-    fill('white')
+    fill('white');
     textSize(50);
-    text("Has completado el juego", windowWidth / 2 - 440, windowHeight / 2 - 400);
-    text("Tu puntuación es de: " + mostrar_puntaje(jugador.puntuacion), windowWidth / 2 - 550, windowHeight / 2 - 200);
+    textAlign(CENTER, CENTER);
 
-    text("Presiona Enter para volver a jugar", windowWidth / 2 - 600, windowHeight / 2 + 200);
+    const centroX = (windowWidth - limiteAnchoCanvas) / 2;
+    const centroY = windowHeight / 2;
+
+    text("Has completado el juego", centroX, centroY - 150);
+
+    text("Tu puntuación es de: " + mostrar_puntaje(jugador.puntuacion), centroX, centroY - 50);
+
+    text("Presiona Enter para volver a jugar", centroX, centroY + 100);
+
     const nuevaPuntuacion = insertarPuntaje(jugador.puntuacion);
     console.log("Nueva puntuacion:", nuevaPuntuacion);
+
     noLoop();
     juegoTerminado = true;
   }
