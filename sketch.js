@@ -10,8 +10,8 @@ let jugador = {
 
 let jefeFinal = {
   imagen: null,
-  vidas: 10,
-  puntos: 100,
+  vidas: 7,
+  puntos: 10,
   alto: 80,
   ancho: 70,
   x: 200,
@@ -24,7 +24,7 @@ let listaMisilesEnemigos = [];
 let tiempoMisilEnemigo = 0
 let intervaloMisilesEnemigos = null;
 let enemigosQueHanDisparado = [];
-
+let tipoMovimientoRandom = 0;
 let apareceJefeFinal = false;
 
 let musicaFondo;
@@ -32,6 +32,7 @@ let disparoJugador;
 let disparoNaveII;
 let naveDestruida;
 let listaEnemigos = [];
+let grupoNavesRandom = [];
 let nivel = 1;
 let nivelTerminado = true;
 
@@ -69,6 +70,8 @@ function setup() {
   jugador.y = windowHeight - 150;
   musicaFondo.setVolume(0.5);
   musicaFondo.loop();
+  setInterval(cambiarTipoMovimientoRandom, 1300);
+  cambiarTipoMovimientoRandom();
 }
 
 function draw() {
@@ -237,7 +240,7 @@ function draw() {
   if (keyIsDown(LEFT_ARROW) && jugador.x > 0) {
     jugador.x -= 9;
   }
-  if (keyIsDown(RIGHT_ARROW) && (jugador.x + jugador.ancho) < windowWidth) {
+  if (keyIsDown(RIGHT_ARROW) && (jugador.x + jugador.ancho) < (windowWidth - limiteAnchoCanvas)) {
     jugador.x += 9;
   }
 
@@ -417,7 +420,9 @@ function nivelJuego() {
             ancho: 70,
             x: j,
             y: i,
-            direccionX: 1
+            direccionX: 1,
+            direccionY: 1,
+            contadorMovimiento: 0
           };
           listaEnemigos.push(enemigo);
         }
@@ -470,8 +475,35 @@ function movimientoEnemigos() {
     case 3:
       for (let i = listaEnemigos.length - 1; i >= 0; i--) {
         image(listaEnemigos[i].imagen, listaEnemigos[i].x, listaEnemigos[i].y, listaEnemigos[i].ancho, listaEnemigos[i].alto);
-        listaEnemigos[i].x += listaEnemigos[i].direccionX * 2.5;
-        listaEnemigos[i].y += 0.35;
+        listaEnemigos[i].y += 0.2;
+
+        switch (tipoMovimientoRandom) {
+          case 1:
+            //MOVIMIENTO ZIG ZAG
+            listaEnemigos[i].x += listaEnemigos[i].direccionX * 2.5;
+            listaEnemigos[i].y += 0.35;
+            break;
+          case 2:
+            //MOVIMIENTO ARRIBA Y ABAJO BRUSCO
+            if (listaEnemigos[i].contadorMovimiento < 50) {
+              //ESTE IF SIRVE PARA, DEPENDIENDO LA DIRECCION Y, AUMENTAR O DISMINUIR EL ICNREMENTO Y QUE SIEMPRE BAJEN MAS LAS NAVES DE LO QUE SUBEN
+              if (listaEnemigos[i].direccionY == 1) {
+                listaEnemigos[i].y += 2 * listaEnemigos[i].direccionY;
+                listaEnemigos[i].contadorMovimiento++;
+              } else {
+                listaEnemigos[i].y += 1 * listaEnemigos[i].direccionY;
+                listaEnemigos[i].contadorMovimiento++;
+              }
+            } else {
+              listaEnemigos[i].direccionY *= -1;
+              listaEnemigos[i].contadorMovimiento = 0;
+            }
+            break;
+          case 3:
+            //MOVIMIENTO NAVES EN GRUPO
+            break;
+        }
+
         if (listaEnemigos[i].x + listaEnemigos[i].ancho >= windowWidth - limiteAnchoCanvas || listaEnemigos[i].x <= 0) {
           for (let k = listaEnemigos.length - 1; k >= 0; k--) {
             listaEnemigos[k].direccionX = -listaEnemigos[k].direccionX;
@@ -595,4 +627,8 @@ function transicion() {
       transicion_bandera = false;
     }
   }
+}
+
+function cambiarTipoMovimientoRandom() {
+  tipoMovimientoRandom = Math.floor(random(1, 4));
 }
