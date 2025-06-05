@@ -203,6 +203,23 @@ function draw() {
       }
     }
   }
+  //VALIDAR COLISION MISIL JUGADOR CON JEFE FINAL
+  if (apareceJefeFinal) {
+    for (let k = listaMisiles.length - 1; k >= 0; k--) {
+      if (listaMisiles[k].x < jefeFinal.x + jefeFinal.ancho &&
+        listaMisiles[k].x + listaMisiles[k].ancho > jefeFinal.x &&
+        listaMisiles[k].y < jefeFinal.y + jefeFinal.alto &&
+        listaMisiles[k].y + listaMisiles[k].alto > jefeFinal.y) {
+        jefeFinal.vidas--;
+        listaMisiles.splice(k, 1);
+        if (jefeFinal.vidas == 0) {
+          jugador.puntuacion += jefeFinal.puntos;
+          naveDestruida.play();
+          break;
+        }
+      }
+    }
+  }
 
   if (listaEnemigos.length == 0 && nivel != 3) {
     nivelTerminado = true;
@@ -265,6 +282,20 @@ function draw() {
   }
   if (keyIsDown(RIGHT_ARROW) && (jugador.x + jugador.ancho) < (windowWidth - limiteAnchoCanvas)) {
     jugador.x += 9;
+  }
+
+  //FINALIZAR JUEGO SI EL JUGADOR DESTRUYE AL JEFE FINAL
+  if (jefeFinal.vidas == 0) {
+    fill('white')
+    textSize(50);
+    text("Has completado el juego", windowWidth / 2 - 440, windowHeight / 2 - 400);
+    text("Tu puntuación es de: " + mostrar_puntaje(jugador.puntuacion), windowWidth / 2 - 550, windowHeight / 2 - 200);
+
+    text("Presiona Enter para volver a jugar", windowWidth / 2 - 600, windowHeight / 2 + 200);
+    const nuevaPuntuacion = insertarPuntaje(jugador.puntuacion);
+    console.log("Nueva puntuacion:", nuevaPuntuacion);
+    noLoop();
+    juegoTerminado = true;
   }
 
 }
@@ -333,7 +364,11 @@ function crearMisilEnemigo() {
       x: listaEnemigos[i].x + 33,
       y: listaEnemigos[i].y + 100
     };
-    misilEnemigoContador++
+
+    //AUMENTAR CONTADOR EN CUANTO INICIA EL NIVEL 3
+    if (nivel == 3) {
+      misilEnemigoContador++;
+    }
     console.log("Contador: " + misilEnemigoContador)
     /*if(misilEnemigoContador == 5 && nivel == 2 ){
       todosDisparan()
