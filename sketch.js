@@ -24,6 +24,7 @@ let listaMisilesEnemigos = [];
 let tiempoMisilEnemigo = 0
 let intervaloMisilesEnemigos = null;
 let enemigosQueHanDisparado = [];
+let misilEnemigoContador = 0;
 let tipoMovimientoRandom = 0;
 let apareceJefeFinal = false;
 
@@ -296,7 +297,6 @@ function crearMisilEnemigo() {
       EnemigosQueNoHanDisparado.push(i);
     }
   }
-
   //Seleccionar uno aleatorio de los enemigos que no han disparado
   let indiceAleatorio = numeroRandom(0, EnemigosQueNoHanDisparado.length);
   let i = EnemigosQueNoHanDisparado[indiceAleatorio];
@@ -309,11 +309,26 @@ function crearMisilEnemigo() {
     x: listaEnemigos[i].x + 33,
     y: listaEnemigos[i].y + 100
   };
-  console.log("dispara: " + i)
+  misilEnemigoContador++
+  console.log("Contador: " + misilEnemigoContador)
+  /*if(misilEnemigoContador == 5 && nivel == 2 ){
+    todosDisparan()
+    misilEnemigoContador = 0;
+  }*/
+   if(misilEnemigoContador == 10 && nivel == 3 ){
+    todosDisparan()
+    misilEnemigoContador = 0;
+  }
   listaMisilesEnemigos.push(misil);
   disparoNaveII.play();
   enemigosQueHanDisparado.push(i);
 }
+function todosDisparan() {
+  for (let enemigo of listaEnemigos) {
+    crearMisilEnemigo(enemigo);
+  }
+}
+
 
 //Ejecutar la función cada cierto tiempo
 function configurarMisilesEnemigos() {
@@ -330,7 +345,7 @@ function configurarMisilesEnemigos() {
   } else {
     return;
   }
-  console.log("ya")
+
 
   intervaloMisilesEnemigos = setInterval(crearMisilEnemigo, tiempoMisilEnemigo);
 }
@@ -533,6 +548,7 @@ function reiniciarJuego() {
   listaMisiles = [];
   listaMisilesEnemigos = [];
   listaEnemigos = [];
+  misilEnemigoContador = 0;
   apareceJefeFinal = false;
 
   nivel = 1;
