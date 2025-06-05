@@ -178,6 +178,13 @@ function draw() {
     }
   }
 
+  //VALIDAR COLISIÓN DE JUGADOR CON JEFE FINAL
+  if (jefeFinal.x < jugador.x + jugador.ancho &&
+    jefeFinal.x + jefeFinal.ancho > jugador.x &&
+    jefeFinal.y < jugador.y + jugador.alto + 30 &&
+    jefeFinal.y + jugador.alto > jugador.y + 30) {
+    jugador.vidas--;
+  }
   //VALIDAR COLISION MISIL JUGADOR CON NAVE ENEMIGA
   for (let i = listaEnemigos.length - 1; i >= 0; i--) {
     for (let k = listaMisiles.length - 1; k >= 0; k--) {
@@ -207,6 +214,7 @@ function draw() {
   }
 
 
+
   //VALIDAR COLISION MISIL ENEMIGO CON JUGADOR
   for (let i = listaEnemigos.length - 1; i >= 0; i--) {
     for (let k = listaMisilesEnemigos.length - 1; k >= 0; k--) {
@@ -220,6 +228,20 @@ function draw() {
       }
     }
   }
+  //VALIDAR COLISION MISIL DE JEFE FINAL CON JUGADOR
+  if (apareceJefeFinal) {
+    for (let i = listaMisilesEnemigos.length - 1; i >= 0; i--) {
+      if (listaMisilesEnemigos[i].x < jugador.x + jugador.ancho &&
+        listaMisilesEnemigos[i].x + listaMisilesEnemigos[i].ancho > jugador.x &&
+        listaMisilesEnemigos[i].y < jugador.y + jugador.alto + 30 &&
+        listaMisilesEnemigos[i].y + jugador.alto > jugador.y + 30) {
+        listaMisilesEnemigos.splice(i, 1);
+        jugador.vidas--;
+      }
+
+    }
+  }
+
 
   //Eliminar misiles fuera de pantalla para liberar espacio del arreglo
   eliminarMisil();
@@ -282,46 +304,61 @@ function crearMisil() {
   listaMisiles.push(misil);
 }
 function crearMisilEnemigo() {
-  if (listaEnemigos.length === 0 || nivel === 1 || jugador.vidas === 0) {
+  //POR HACER: AGREGAR UNA CONDICION QUE HAGA QUE NO SE EJECUTE SI EL JUGADOR COMPLETA EL JUEGO
+  if (nivel === 1 || jugador.vidas === 0) {
     return;
   }
 
-  // Si ya todos dispararon, reiniciar la lista
-  if (enemigosQueHanDisparado.length >= listaEnemigos.length) {
-    enemigosQueHanDisparado = [];
-  }
-
-  let EnemigosQueNoHanDisparado = [];
-  for (let i = 0; i < listaEnemigos.length; i++) {
-    if (!enemigosQueHanDisparado.includes(i)) {
-      EnemigosQueNoHanDisparado.push(i);
+  if (!apareceJefeFinal) {
+    // Si ya todos dispararon, reiniciar la lista
+    if (enemigosQueHanDisparado.length >= listaEnemigos.length) {
+      enemigosQueHanDisparado = [];
     }
-  }
-  //Seleccionar uno aleatorio de los enemigos que no han disparado
-  let indiceAleatorio = numeroRandom(0, EnemigosQueNoHanDisparado.length);
-  let i = EnemigosQueNoHanDisparado[indiceAleatorio];
 
-  // Crear misil
-  let misil = {
-    alto: 60,
-    ancho: 5,
-    colorFondo: "yellow",
-    x: listaEnemigos[i].x + 33,
-    y: listaEnemigos[i].y + 100
-  };
-  misilEnemigoContador++
-  console.log("Contador: " + misilEnemigoContador)
-  /*if(misilEnemigoContador == 5 && nivel == 2 ){
-    todosDisparan()
-    misilEnemigoContador = 0;
-  }*/
-   if(misilEnemigoContador == 10 && nivel == 3 ){
-    todosDisparan()
-    misilEnemigoContador = 0;
+    let EnemigosQueNoHanDisparado = [];
+    for (let i = 0; i < listaEnemigos.length; i++) {
+      if (!enemigosQueHanDisparado.includes(i)) {
+        EnemigosQueNoHanDisparado.push(i);
+      }
+    }
+    //Seleccionar uno aleatorio de los enemigos que no han disparado
+    let indiceAleatorio = numeroRandom(0, EnemigosQueNoHanDisparado.length);
+    let i = EnemigosQueNoHanDisparado[indiceAleatorio];
+
+    // Crear misil
+    let misil = {
+      alto: 60,
+      ancho: 5,
+      colorFondo: "yellow",
+      x: listaEnemigos[i].x + 33,
+      y: listaEnemigos[i].y + 100
+    };
+    misilEnemigoContador++
+    console.log("Contador: " + misilEnemigoContador)
+    /*if(misilEnemigoContador == 5 && nivel == 2 ){
+      todosDisparan()
+      misilEnemigoContador = 0;
+    }*/
+    if (misilEnemigoContador == 10 && nivel == 3) {
+      todosDisparan()
+      misilEnemigoContador = 0;
+    }
+    listaMisilesEnemigos.push(misil);
+    disparoNaveII.play();
+    enemigosQueHanDisparado.push(i);
+
+  } else {
+    let misil = {
+      alto: 60,
+      ancho: 5,
+      colorFondo: "yellow",
+      x: jefeFinal.x + 33,
+      y: jefeFinal.y + 100
+    };
+    listaMisilesEnemigos.push(misil);
+
   }
-  listaMisilesEnemigos.push(misil);
-  disparoNaveII.play();
-  enemigosQueHanDisparado.push(i);
+
 }
 function todosDisparan() {
   for (let enemigo of listaEnemigos) {
