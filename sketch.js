@@ -5,7 +5,7 @@ let jugador = {
   ancho: 70,
   x: 0,
   y: 0,
-  vidas: 333
+  vidas: 3
 };
 
 let jefeFinal = {
@@ -140,7 +140,6 @@ function draw() {
     text("Presiona Enter para volver a jugar", windowWidth / 2 - 600, windowHeight / 2 + 200);
 
     const nuevaPuntuacion = insertarPuntaje(jugador.puntuacion);
-    console.log("Nueva puntuacion:", nuevaPuntuacion);
 
     noLoop();
     juegoTerminado = true;
@@ -226,7 +225,6 @@ function draw() {
     nivel++;
   }
   else if (listaEnemigos.length == 0 && nivel == 3) {
-    console.log("aparece")
     apareceJefeFinal = true
   }
 
@@ -300,7 +298,6 @@ function draw() {
     text("Presiona Enter para volver a jugar", centroX, centroY + 100);
 
     const nuevaPuntuacion = insertarPuntaje(jugador.puntuacion);
-    console.log("Nueva puntuacion:", nuevaPuntuacion);
 
     noLoop();
     juegoTerminado = true;
@@ -377,7 +374,6 @@ function crearMisilEnemigo() {
     if (nivel == 3) {
       misilEnemigoContador++;
     }
-    console.log("Contador: " + misilEnemigoContador)
     /*if(misilEnemigoContador == 5 && nivel == 2 ){
       todosDisparan()
       misilEnemigoContador = 0;
@@ -570,7 +566,7 @@ function movimientoEnemigos() {
     case 3:
       for (let i = listaEnemigos.length - 1; i >= 0; i--) {
         image(listaEnemigos[i].imagen, listaEnemigos[i].x, listaEnemigos[i].y, listaEnemigos[i].ancho, listaEnemigos[i].alto);
-        listaEnemigos[i].y += 0.2;
+        listaEnemigos[i].y += 0.4;
 
         switch (tipoMovimientoRandom) {
           case 1:
@@ -596,6 +592,17 @@ function movimientoEnemigos() {
             break;
           case 3:
             //MOVIMIENTO NAVES EN GRUPO
+            if (grupoNavesRandom.includes(listaEnemigos[i])) {
+              do {
+                listaEnemigos[i].direccionX = floor(random(-1, 1));
+              } while (listaEnemigos[i].direccionX == 0);
+              do {
+                listaEnemigos[i].direccionY = floor(random(-1, 1));
+              } while (listaEnemigos[i].direccionY == 0);
+              listaEnemigos[i].x += listaEnemigos[i].direccionX * random(0.1, 2.5);
+              listaEnemigos[i].y += listaEnemigos[i].direccionY * random(0.1, 1);
+            }
+
             break;
         }
 
@@ -727,4 +734,16 @@ function transicion() {
 
 function cambiarTipoMovimientoRandom() {
   tipoMovimientoRandom = Math.floor(random(1, 4));
+  if (tipoMovimientoRandom == 3) {
+    grupoNavesRandom = [];
+    for (let j = 0; j <= 9; j++) {
+      const navesRandomGrupo = Math.floor(Math.random() * listaEnemigos.length);
+      if (!grupoNavesRandom.includes(listaEnemigos[navesRandomGrupo])) {
+        grupoNavesRandom.push(listaEnemigos[navesRandomGrupo]);
+      }
+      console.log("estoy entrando al for que se supone llena el arreglo")
+    }
+  } else {
+    grupoNavesRandom = [];
+  }
 }
