@@ -257,7 +257,6 @@ function draw() {
     }
   }
 
-
   //Eliminar misiles fuera de pantalla para liberar espacio del arreglo
   eliminarMisil();
   eliminarMisilEnemigo();
@@ -547,6 +546,7 @@ function movimientoEnemigos() {
         }
         //SI EL ENEMIGO TOCA EL FONDO, EL JUGADOR PIERDE UNA VIDA
         if (listaEnemigos[i].y + listaEnemigos[i].alto >= windowHeight) {
+          listaEnemigos.splice(i, 1);
           jugador.vidas--;
         }
       }
