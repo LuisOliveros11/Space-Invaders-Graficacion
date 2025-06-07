@@ -16,7 +16,9 @@ let jefeFinal = {
   ancho: 70,
   x: 200,
   y: 200,
-  direccionX: 3
+  direccionX: 1,
+  direccionY: 1,
+  contadorMovimiento: 0
 }
 const STORAGE_KEY = "listaPuntaje";
 let listaMisiles = [];
@@ -27,6 +29,8 @@ let enemigosQueHanDisparado = [];
 let misilEnemigoContador = 0;
 let tipoMovimientoRandom = 0;
 let apareceJefeFinal = false;
+let jefeFinalTocaFondo = false;
+let jefeFinalTocaLados = false;
 
 let musicaFondo;
 let disparoJugador;
@@ -60,7 +64,7 @@ function preload() {
 
   imgNaveEnemiga1 = loadImage('./img/nave_Enemiga.png');
   imgNaveEnemiga2 = loadImage('./img/nave_Enemiga_II.png');
-  jefeFinal.imagen = loadImage('./img/nave_Enemiga_II.png');
+  jefeFinal.imagen = loadImage('./img/jefe_Final.png');
   imgNaveEnemigaEspecial2 = loadImage('./img/nave_Enemiga_Especial_II.png');
   fondo = loadImage('./img/fondo.jpg');
 }
@@ -77,7 +81,9 @@ function setup() {
 
 function draw() {
   image(fondo, -limiteAnchoCanvas, 0, windowWidth, windowHeight);
-
+  if (nivel == 3) {
+    listaEnemigos = []
+  }
   //BARRA LATERAL
   fill('black');
   noStroke();
@@ -576,18 +582,17 @@ function movimientoEnemigos() {
             break;
           case 2:
             //MOVIMIENTO ARRIBA Y ABAJO BRUSCO
-            if (listaEnemigos[i].contadorMovimiento < 50) {
-              //ESTE IF SIRVE PARA, DEPENDIENDO LA DIRECCION Y, AUMENTAR O DISMINUIR EL ICNREMENTO Y QUE SIEMPRE BAJEN MAS LAS NAVES DE LO QUE SUBEN
-              if (listaEnemigos[i].direccionY == 1) {
-                listaEnemigos[i].y += 2 * listaEnemigos[i].direccionY;
-                listaEnemigos[i].contadorMovimiento++;
+            if (jefeFinal.contadorMovimiento < 50) {
+              if (jefeFinal.direccionY == 1) {
+                jefeFinal.y += 2 * jefeFinal.direccionY;
+                jefeFinal.contadorMovimiento++;
               } else {
-                listaEnemigos[i].y += 1 * listaEnemigos[i].direccionY;
-                listaEnemigos[i].contadorMovimiento++;
+                jefeFinal.y += 1 * jefeFinal.direccionY;
+                jefeFinal.contadorMovimiento++;
               }
             } else {
-              listaEnemigos[i].direccionY *= -1;
-              listaEnemigos[i].contadorMovimiento = 0;
+              jefeFinal.direccionY *= -1;
+              jefeFinal.contadorMovimiento = 0;
             }
             break;
           case 3:
@@ -599,9 +604,14 @@ function movimientoEnemigos() {
               do {
                 listaEnemigos[i].direccionY = floor(random(-1, 1));
               } while (listaEnemigos[i].direccionY == 0);
-              listaEnemigos[i].x += listaEnemigos[i].direccionX * random(0.1, 2.5);
+              if (listaEnemigos[i].x + listaEnemigos[i].ancho + 2.5 >= windowWidth - limiteAnchoCanvas || listaEnemigos[i].x - 2.5 <= 0) {
+                listaEnemigos[i].x += listaEnemigos[i].direccionX * random(0.1, 2.5);
+
+              }
               listaEnemigos[i].y += listaEnemigos[i].direccionY * random(0.1, 1);
             }
+
+
 
             break;
         }
@@ -615,16 +625,75 @@ function movimientoEnemigos() {
       break;
   }
   if (apareceJefeFinal) {
-    image(jefeFinal.imagen, jefeFinal.x, jefeFinal.y, jefeFinal.ancho, jefeFinal.alto)
+    image(jefeFinal.imagen, jefeFinal.x, jefeFinal.y, jefeFinal.ancho, jefeFinal.alto);
 
-    jefeFinal.x += jefeFinal.direccionX;
-    jefeFinal.y += 1;
-    if (jefeFinal.x + jefeFinal.ancho >= windowWidth - limiteAnchoCanvas || jefeFinal.x <= 0) {
-      jefeFinal.direccionX = -jefeFinal.direccionX;
+    if (jefeFinal.y + jefeFinal.alto >= windowHeight) {
+      jefeFinalTocaFondo = true;
+    }
+    if (jefeFinal.x <= 0 || jefeFinal.x + jefeFinal.ancho >= windowWidth - limiteAnchoCanvas) {
+      jefeFinalTocaLados = true;
+    }
+
+    if (!jefeFinalTocaFondo && !jefeFinalTocaLados) {
+      jefeFinal.y += 1;
+      switch (tipoMovimientoRandom) {
+        case 1:
+          //MOVIMIENTO ZIG ZAG
+          jefeFinal.x += jefeFinal.direccionX * 2.5;
+          jefeFinal.y += 0.35;
+          break;
+        case 2:
+          //MOVIMIENTO ARRIBA Y ABAJO BRUSCO
+          if (jefeFinal.contadorMovimiento < 50) {
+            let inc = jefeFinal.direccionY === 1 ? 2 : 1;
+            jefeFinal.y += inc * jefeFinal.direccionY;
+            jefeFinal.contadorMovimiento++;
+          } else {
+            jefeFinal.direccionY *= -1;
+            jefeFinal.contadorMovimiento = 0;
+          }
+          break;
+        case 3:
+          do {
+            jefeFinal.direccionX = floor(random(-1, 2));
+
+          }
+          while (jefeFinal.direccionX === 0);
+          do {
+            jefeFinal.direccionY = floor(random(-1, 2));
+          }
+          while (jefeFinal.direccionY === 0);
+          jefeFinal.x += jefeFinal.direccionX * random(0.1, 2.5);
+          jefeFinal.y += jefeFinal.direccionY * random(0.1, 1);
+          break;
+      }
+    }
+
+    if (jefeFinalTocaFondo) {
+      jefeFinal.y -= 3;
+      if (jefeFinal.y <= 0) {
+        jefeFinalTocaFondo = false;
+        tipoMovimientoRandom = floor(random(1, 4));
+      }
+    }
+
+    if (jefeFinalTocaLados) {
+      const centroX = (windowWidth - limiteAnchoCanvas) / 2 - jefeFinal.ancho / 2;
+      if (jefeFinal.x < centroX) {
+        jefeFinal.x += 3;
+      } else {
+        jefeFinal.x -= 3;
+      }
+      //cuando esté casi en el centro, desactivar bandera
+      if (abs(jefeFinal.x - centroX) < 5) {
+        jefeFinalTocaLados = false;
+        tipoMovimientoRandom = floor(random(1, 4));
+      }
     }
   }
-}
 
+
+}
 
 function reiniciarJuego() {
   jugador.puntuacion = 0;
@@ -637,6 +706,9 @@ function reiniciarJuego() {
   listaEnemigos = [];
   misilEnemigoContador = 0;
   apareceJefeFinal = false;
+  jefeFinalTocaFondo = false;
+  jefeFinalTocaLados = false;
+  jefeFinal.vidas = 7
 
   nivel = 1;
   nivelTerminado = true;
