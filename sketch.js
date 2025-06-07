@@ -81,9 +81,7 @@ function setup() {
 
 function draw() {
   image(fondo, -limiteAnchoCanvas, 0, windowWidth, windowHeight);
-  if (nivel == 3) {
-    listaEnemigos = []
-  }
+  
   //BARRA LATERAL
   fill('black');
   noStroke();
