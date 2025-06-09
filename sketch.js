@@ -5,7 +5,7 @@ let jugador = {
   ancho: 70,
   x: 0,
   y: 0,
-  vidas: 33333
+  vidas: 333
 };
 
 let jefeFinal = {
