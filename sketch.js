@@ -5,7 +5,7 @@ let jugador = {
   ancho: 70,
   x: 0,
   y: 0,
-  vidas: 3
+  vidas: 33333
 };
 
 let jefeFinal = {
@@ -38,7 +38,7 @@ let disparoNaveII;
 let naveDestruida;
 let listaEnemigos = [];
 let grupoNavesRandom = [];
-let nivel = 1;
+let nivel = 3;
 let nivelTerminado = true;
 
 let juegoTerminado = false;
